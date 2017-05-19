@@ -1,0 +1,55 @@
+html
+	head
+		title= title
+		script(src="https://code.jquery.com/jquery-3.2.1.min.js", integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=", crossorigin="anonymous")
+		link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u", crossorigin="anonymous")
+		script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
+		link(rel="stylesheet", href="/css/styles.css")
+
+	body
+		nav(class="navbar navbar-inverse navbar-fixed-top")
+			div(class="container")
+				div(class="navbar-header")
+					button(type="button", class="navbar-toggle collapsed", data-toggle="collapse", data-target="#navbar", aria-expanded="false", aria-controls="navbar")
+						span(class="sr-only") Toggle navigation
+						span(class="icon-bar")
+						span(class="icon-bar")
+						span(class="icon-bar")
+					a(class="navbar-brand", href="/") Summer Beach Volleyball 2017
+				div(id="navbar", class="collapse navbar-collapse")
+					ul(class="nav navbar-nav")
+						li
+							a(href="#") Home
+						li
+							a(href="/orders") Schedule
+						li
+							a(href="/stats") Stats
+						li
+							a(href="/rules") Rules
+						li(class="active")
+							a(href="/setup") Setup
+		
+		div(class="container panel with-nav-tabs")
+			h1 Tournament Setup
+			div(class="panel-heading")
+				ul(class="nav nav-tabs")
+					li(class="active")
+						a(data-toggle="tab" href="#createTournament") Tournament
+					li
+						a(data-toggle="tab" href="#createTeams") Teams
+					li
+						a(data-toggle="tab" href="#createMatches") Matches
+
+			div(class="panel-body tab-content")
+				div(class="tab-pane fade in active", id="createTournament")
+					form
+						div(class="form-group")
+							label(for="tournamentName") Tournamnt Name
+							input(type="text" class="form-control", id="tournamentName", name="tournamentName")
+				div(class="tab-pane fade in", id="createTeams")
+					form
+						div(class="form-group")
+							label(for="teamName") Team Name
+							input(type="text") 
+
+			
