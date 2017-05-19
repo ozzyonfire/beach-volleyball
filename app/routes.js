@@ -84,7 +84,13 @@ module.exports = function(app) {
 	});
 
 	app.post('/api/team', function(req, res) {
-		var teammates = req.body.teammates.split('\n');
+		var teammates = req.body.teammates;
+
+		if (teammates) {
+			teammates = teammates.split('\n');
+		} else {
+			teammates = [];
+		}
 
 		var newTeam = new Team();
 		newTeam.teammates = teammates;
@@ -95,8 +101,68 @@ module.exports = function(app) {
 		});
 	});
 
+	app.put('/api/team', function(req, res) {
+		Team.findOne({_id: req.body.id}, function(err, doc) {
+			if (err) {
+				res.send('Error saving the team.');
+			}
+
+			if (doc) {
+				doc.name = req.body.name;
+				doc.teammates = req.body.teammates.split('\n');
+				doc.save(function(err, updatedTeam) {
+					res.send(updatedTeam);
+				})
+			}
+		})
+	});
+
+	app.put('/api/team/member', function(req, res) {
+		var name = req.body.name
+		if (!name) {
+			res.send('Error. Please supply a team name.');
+		}
+
+		Team.findOne({name: name}, function(err, doc) {
+			doc.teammates.push(req.body.member);
+			doc.save(function(err, updatedTeam) {
+				res.send(updatedTeam);
+			});
+		});
+
+	});
+
+	app.get('/api/team', function(req, res) {
+		Team.find({}, function(err, docs) {
+			res.send(docs);
+		});
+	});
+
+	app.delete('/api/team', function(req, res) {
+		Team.remove({_id: req.body.id}, function(err) {
+			if (err)
+				res.send(false);
+			res.send(true);
+		})
+	});
+
 	app.get('/setup', function(req, res) {
-		res.render('setup');
+		Team.find({}, function(err, docs) {
+			if (err) {
+				res.send('Error getting the teams.');
+			}
+
+			Tournament.find({}, function(err, tournys) {
+				if (err) {
+					res.send('Error getting the tournaments');
+				}
+
+				res.render('setup', {
+					teams : docs,
+					tournaments : tournys
+				});
+			});
+		});
 	});
 
 	app.get('/', function(req, res) {

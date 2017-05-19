@@ -1,0 +1,25 @@
+mixin editTeamModal(team)
+	div(class="modal fade", id=team._id+"_modal", tabindex="-1", role="dialog", aria-labelledby=team.name+"_label")
+		div(class="modal-dialog", role="document")
+			.modal-content
+				.modal-header
+					button(type="button", class="close", data-dismiss="modal", aria-label="Close")
+						span(aria-hidden="true") &times;
+					h4(class="modal-title", id=team.name+"_label")= "Editing " + team.name
+				.modal-body
+					form(id=team._id+"_form")
+						input(type="hidden", value=team._id, name="id", id=team._id+'_id')
+						.form-group
+							label(for=team._id+"_teamName") Team Name
+							input(type="text", class="form-control", id=team._id+"_teamName", name="name", value=team.name)
+						.form-group
+							label(for=team._id+"_teammates") Members
+							p(class="help-block") Enter the names of the members separated by newlines.
+							textarea(class="form-control", rows="5", id=team._id+"_teammates", name="teammates")
+								|
+								each member in team.teammates
+									| #{member}
+				.modal-footer
+					button(type="button", class="btn btn-default", data-dismiss="modal") Cancel
+					button(type="button", class="btn btn-primary", data-dismiss="modal", id=team._id+"_save") Save
+					button(type="button", class="btn btn-danger", data-dismiss="modal", id=team._id+"_remove") Delete

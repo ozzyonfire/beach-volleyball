@@ -1,3 +1,5 @@
+doctype html
+include mixins
 html
 	head
 		title= title
@@ -5,7 +7,7 @@ html
 		link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u", crossorigin="anonymous")
 		script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
 		link(rel="stylesheet", href="/css/styles.css")
-
+		script(src="js/setup.js")
 	body
 		nav(class="navbar navbar-inverse navbar-fixed-top")
 			div(class="container")
@@ -29,12 +31,13 @@ html
 						li(class="active")
 							a(href="/setup") Setup
 		
-		div(class="container panel with-nav-tabs")
+		.text-center
 			h1 Tournament Setup
-			div(class="panel-heading")
+		div(class="container panel with-nav-tabs")
+			.panel-heading
 				ul(class="nav nav-tabs")
 					li(class="active")
-						a(data-toggle="tab" href="#createTournament") Tournament
+						a(data-toggle="tab" href="#createTournament") Tournaments
 					li
 						a(data-toggle="tab" href="#createTeams") Teams
 					li
@@ -42,14 +45,55 @@ html
 
 			div(class="panel-body tab-content")
 				div(class="tab-pane fade in active", id="createTournament")
-					form
-						div(class="form-group")
-							label(for="tournamentName") Tournamnt Name
-							input(type="text" class="form-control", id="tournamentName", name="tournamentName")
+					form#tournamentForm
+						.form-group
+							label(for="tournamentName") Tournament Name
+							input(type="text" class="form-control", id="tournamentName", name="name")
+					button(type="button", class="btn btn-default", id="addTournamentButton") Create Tournament
 				div(class="tab-pane fade in", id="createTeams")
-					form
-						div(class="form-group")
+					.list-group#teamGroup
+						each team in teams
+							button(class="list-group-item", type="button", data-toggle="modal", data-target="#"+team._id+'_modal', id=team._id+'_list')= team.name
+							+editTeamModal(team)
+					form#teamForm
+						.form-group
 							label(for="teamName") Team Name
-							input(type="text") 
+							input(type="text", class="form-control", id="teamName", name="name")
+						.form-group
+							label(for="teammates") Members
+							p(class="help-block") Enter the names of the members separated by newlines.
+							textarea(class="form-control", rows="5", id="teammates", name="teammates")
+						button(type="button", class="btn btn-default", id="addTeamButton") Add Team
 
-			
+				div(class="tab-pane fade in", id="createMatches")
+					form(class="form-horizontal")
+						.form-group
+							.col-lg-12
+								label(for="tournament") Tournament
+								select(class="form-control")
+									each tournament in tournaments
+										option(value=tournament._id)= tournament.name
+						.form-group
+							.col-lg-12
+								label(for="round") Round (or Week)
+								input(type="number", class="form-control", id="round", name="round")
+						.form-group
+							.col-lg-6
+								label(for="home") Home
+								select(class="form-control", id="home", name="home")
+									each team in teams
+										option(value=team._id)= team.name
+							.col-lg-6
+								label(for="away") Away
+								select(class="form-control", id="away", name="away")
+									each team in teams
+										option(value=team._id)= team.name
+						.form-group
+							.col-lg-12
+								label(for="date") Date
+								input(type="date", class="form-control", id="date", name="date")
+						.form-group
+							.col-lg-12
+								label(for="time") Time
+								input(type="time", class="form-control", id="time", name="time")
+						button(type="button", class="btn btn-primary", id="addMatchButton") Add Match
