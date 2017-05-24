@@ -42,6 +42,8 @@ html
 						a(data-toggle="tab" href="#createTeams") Teams
 					li
 						a(data-toggle="tab" href="#createMatches") Matches
+					li
+						a(data-toggle="tab" href="#createPlayers") Players
 
 			div(class="panel-body tab-content")
 				div(class="tab-pane fade in active", id="createTournament")
@@ -50,27 +52,32 @@ html
 							label(for="tournamentName") Tournament Name
 							input(type="text" class="form-control", id="tournamentName", name="name")
 					button(type="button", class="btn btn-default", id="addTournamentButton") Create Tournament
+					hr
+					.list-group#tournamentGroup
+						each tournament in tournaments
+							button(class="list-group-item", type="button", data-toggle="modal", data-target="#"+tournament._id+'_modal', id=tournament._id+'_list')= tournament.name
 				div(class="tab-pane fade in", id="createTeams")
 					.list-group#teamGroup
 						each team in teams
-							button(class="list-group-item", type="button", data-toggle="modal", data-target="#"+team._id+'_modal', id=team._id+'_list')= team.name
-							+editTeamModal(team)
-					form#teamForm
-						.form-group
-							label(for="teamName") Team Name
-							input(type="text", class="form-control", id="teamName", name="name")
-						.form-group
-							label(for="teammates") Members
-							p(class="help-block") Enter the names of the members separated by newlines.
-							textarea(class="form-control", rows="5", id="teammates", name="teammates")
-						button(type="button", class="btn btn-default", id="addTeamButton") Add Team
-
+							button(class="list-group-item", type="button", data-toggle="modal", data-target="#teamModal", id=team._id+'_list')= team.name
+					button.btn.btn-default#addPlayerButton(type="button", data-toggle="modal", data-target="#teamModal") Add Team
+					+genericModal('teamModal', 'New Team')
+						form#teamForm
+							.form-group
+								label(for="tournaments_team") Tournament
+								select(class="form-control", id="tournaments_team", name="tournament")
+									each tournament in tournaments
+										option(value=tournament._id)= tournament.name
+							.form-group
+								label(for="teamName") Team Name
+								input(type="text", class="form-control", id="teamName", name="name")
+							ul.list-group#teammateGroup
 				div(class="tab-pane fade in", id="createMatches")
-					form(class="form-horizontal")
+					form#matchForm(class="form-horizontal")
 						.form-group
 							.col-lg-12
-								label(for="tournament") Tournament
-								select(class="form-control")
+								label(for="tournaments") Tournament
+								select(class="form-control", id="tournaments", name="tournament")
 									each tournament in tournaments
 										option(value=tournament._id)= tournament.name
 						.form-group
@@ -96,4 +103,37 @@ html
 							.col-lg-12
 								label(for="time") Time
 								input(type="time", class="form-control", id="time", name="time")
-						button(type="button", class="btn btn-primary", id="addMatchButton") Add Match
+						.btn-group
+							button(type="button", class="btn btn-primary", id="addMatchButton") Add Match
+							button(type="button", class="btn btn-success", id="generateRoundRobinButton") Generate Round Robin
+					hr
+					table.table.table-striped.table-hover
+						thead
+							tr
+								th Round
+								th Home
+								th Away
+								th Date
+								th Time
+						tbody#matchTableBody
+				.tab-pane.fade.in#createPlayers
+					.list-group#playerGroup
+					button.btn.btn-default#addPlayerButton(type="button", data-toggle="modal", data-target="#playerModal") Add Player
+					+genericModal("playerModal", "New Player")
+						form#playerForm
+							.form-group
+								label(for="player-name") Player Name
+								input.form-control(type="text", id="player-name", name="name")
+							.form-group
+								label(for="email") Email Address
+								input.form-control(type="email", id="email", name="email")
+							.form-group
+								label
+									input(type="checkbox", name="paid", id="paid")
+									|  Paid
+							.form-group
+								label(for="player-team") Team
+								select.form-control#player-team(name="team")
+									option(value="") No Team
+									each team in teams
+										option(value=team._id)= team.name

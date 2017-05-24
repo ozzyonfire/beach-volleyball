@@ -23,3 +23,19 @@ mixin editTeamModal(team)
 					button(type="button", class="btn btn-default", data-dismiss="modal") Cancel
 					button(type="button", class="btn btn-primary", data-dismiss="modal", id=team._id+"_save") Save
 					button(type="button", class="btn btn-danger", data-dismiss="modal", id=team._id+"_remove") Delete
+
+mixin genericModal(id, title)
+	.modal.fade(id=id, tabindex="-1", role="dialog", aria-labelledby=id+"_label")
+		.modal-dialog(role="document")
+			.modal-content
+				.modal-header
+					button(type="button", class="close", data-dismiss="modal", aria-label="Close")
+						span(aria-hidden="true") &times;
+					h4.modal-title(id=id+"_label")= title
+				.modal-body(id=id+"_modalBody")
+					if block
+						block
+				.modal-footer
+					button(type="button", class="btn btn-default", data-dismiss="modal") Cancel
+					button(type="button", class="btn btn-primary", data-dismiss="modal", id=id+"_save") Save
+					button(type="button", class="btn btn-danger", data-dismiss="modal", id=id+"_remove" disabled="disabled") Delete

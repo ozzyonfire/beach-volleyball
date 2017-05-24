@@ -1,37 +1,120 @@
 $(document).ready(function() {
 
-	// buttons
-	$('#addTeamButton').click(function(e) {
+	// Tournament Tab
+	$('#addTournamentButton').click(function(e) {
+		$.post('/api/tournament', $('#tournamentForm').serialize())
+			.done(function(tourny) {
+				$('#tournaments').append($('<option></option>').prop('value',tourny._id).text(tourny.name));
+			});
+	});
+
+	// Team Tab
+	$('#teamModal_save').click(function(e) {
 		$.post('/api/team', $('#teamForm').serialize())
 			.done(function(team) {
-				console.log(team);
 				addTeamButtonAndModal(team);
 			});
 	});
 
-	$('#addTournamentButton').click(function(e) {
-		$.post('/api/tournament', $('#tournamentForm').serialize())
-			.done(function(tourny) {
-				console.log(tourny);
-				// necessary updates
-			})
-	})
-
 	$.get('/api/team').done(function(teams) {
-		console.log(teams);
 		teams.forEach(function(team) {
 			var id = team._id;
+
+			// modal button
+			$('#'+id+'_list').click(function(e) {
+				showTeamModal(team);
+			});
+
 			// save button
 			$('#'+id+'_save').click(function(e) {
 				saveTeam(team);
 			});
+
 			// delete button
 			$('#'+id+'_remove').click(function(e) {
 				deleteTeam(team);
 			});
 		});
 	});
+
+	// Matches Tab
+	var currentTourny = $('#tournaments').val();
+	populateMatches(currentTourny);
+
+	$('#addMatchButton').click(function(e) {
+		$.post('/api/match', $('#matchForm').serialize())
+			.done(function(match) {
+				addMatchButtonAndModal(match);
+			});
+	});
+
+	$('#generateRoundRobinButton').click(function(e) {
+		var id = $('#tournaments').val();
+		$.get('api/generate/roundrobin', {id : id})
+			.done(function(tourny) {
+				populateMatches(id);
+			});
+	});
+
+	$('#tournaments').change(function(e) {
+		var id = $('#tournaments').val();
+		populateMatches(id);
+	});
+
+	// Players Tab
+	$('#playerModal_save').click(function(e) {
+		$.post('/api/player', $('#playerForm').serialize(), function(response) {
+			addPlayerToList(response);
+		});
+	});
+
+	$.get('/api/player').done(function(players) {
+		players.forEach(function(player) {
+			addPlayerToList(player);
+		});
+	});
 });
+
+function addPlayerToList(player) {
+	var button = $('<button></button>').addClass('list-group-item');
+	button.prop('type', 'button').attr('data-toggle','modal');
+	button.attr('data-target','#playerModal').text(player.name);
+	button.prop('id', player._id);
+
+	button.click(function(e) {
+		// populate the form with this info
+		$('#player-name').val(player.name);
+		$('#email').val(player.email);
+		$('#paid').prop('checked', player.paid);
+		$('#playerModal_label').text(player.name);
+		$('#playerModal_remove').prop('disabled', '');
+	});
+
+	$('#playerGroup').append(button);
+}
+
+// Functions
+
+function showTeamModal(team) {
+	$('#teamName').val(team.name);
+	$('#tournament').val(team.tournament);
+	$('#teammateGroup').empty();
+	team.teammates.forEach(function(mate) {
+		$('teammateGroup').append($('<li class="list-group-item"></li>').text(mate.name))
+	});
+}
+
+function populateMatches(id) {
+	$('matchTableBody').empty();
+	$.get('/api/tournament', {id: id}).done(function(tourny) {
+		// populate the matches
+		console.log('from populateMatches');
+		console.log(tourny);
+		tourny.matches.forEach(function(match) {
+			addMatchTable(match);
+		});
+	});
+}
 
 function saveTeam(team) {
 	var id = team._id;
@@ -50,6 +133,10 @@ function saveTeam(team) {
 
 		// update the team name in the list
 		$('#'+id+'_list').text(team.name);
+
+		// update the team names in the match list
+		$('#home').append($('<option></option>').text(team.name).prop('value', team._id));
+		$('#away').append($('<option></option>').text(team.name).prop('value', team._id));
 	});
 }
 
@@ -63,6 +150,25 @@ function deleteTeam(team) {
 		$('#'+id+'_list').remove();
 		//$('#'+id+'_modal').remove();
 	});
+}
+
+function addMatchTable(match) {
+	var tableBody = $('#matchTableBody');
+
+	var matchRow = $('<tr></tr>');
+	var roundCol = $('<td></td>').text(match.round);
+	var homeCol = $('<td></td>').text(match.home.name);
+	var awayCol = $('<td></td>').text(match.away.name);
+	var dateCol = $('<td></td>').text(match.date);
+	var timeCol = $('<td></td>').text(match.time);
+
+	matchRow.append(roundCol);
+	matchRow.append(homeCol);
+	matchRow.append(awayCol);
+	matchRow.append(dateCol);
+	matchRow.append(timeCol);
+
+	tableBody.append(matchRow);
 }
 
 function addTeamButtonAndModal(team) {
@@ -134,4 +240,8 @@ function addTeamButtonAndModal(team) {
 
 	$('#teamGroup').append(button);
 	$('#teamGroup').append(modal);
+
+	// add the matches
+	$('#home').append($('<option></option>').text(team.name).prop('value', team._id));
+	$('#away').append($('<option></option>').text(team.name).prop('value', team._id));
 }

@@ -17,7 +17,8 @@ var matchSchema = new mongoose.Schema({
 	winningScore: Number,
 	losingScore: Number,
 	round: Number,
-	datetime: Date
+	date: Date,
+	time: String
 });
 
 module.exports = mongoose.model('Match', matchSchema);
