@@ -111,8 +111,7 @@ module.exports = {
 			}
 
 			if (team) {
-				console.log(team);
-				console.log(team.teammates);
+				if (team.teammates.indexOf(player._id) == -1) // it doesn't exist in the array
 				team.teammates.push(player._id);
 				team.save();
 			}
