@@ -121,7 +121,7 @@ module.exports = function(app) {
 		} else {
 			Match.findOne({_id: req.body.id}, function(err, match) {
 				if (match.tournament) {
-					if (match.tournament.equals(tournament)) {
+					if (!match.tournament.equals(tournament)) {
 						console.log('Changing the tournament from the match isn\'t currently supported');
 					}
 				}
@@ -231,7 +231,9 @@ module.exports = function(app) {
 					doc.tournament = req.body.tournament;
 					doc.save(function(err, updatedTeam) {
 						helpers.addTeamToTournament(doc, doc.tournament);
-						res.send(updatedTeam);
+						updatedTeam.populate('teammates', function(err) {
+							res.send(updatedTeam);
+						});
 					});
 				}
 			});
@@ -329,7 +331,9 @@ module.exports = function(app) {
 				}
 
 				if (player) {
-					helpers.removeTeammate(player.team, player);
+					if (player.team.equals(req.body.team)) {
+						helpers.removeTeammate(player.team, player);
+					}
 					player.name = req.body.name;
 					player.team = req.body.team;
 					player.paid = req.body.paid;
