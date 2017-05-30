@@ -310,10 +310,15 @@ module.exports = function(app) {
 			newPlayer.paid = req.body.paid;
 			newPlayer.email = req.body.email;
 			newPlayer.save(function(err, updatedPlayer) {
-				helpers.addTeammate(newPlayer.team, updatedPlayer);
-				var returnPlayer = updatedPlayer.toObject();
-				returnPlayer.isNew = true;
-				res.send(returnPlayer);
+				if (err) {
+					console.log(err);
+					res.send('Error creating the player');
+				} else {
+					helpers.addTeammate(newPlayer.team, updatedPlayer);
+					var returnPlayer = updatedPlayer.toObject();
+					returnPlayer.isNew = true;
+					res.send(returnPlayer);
+				}
 			});
 		} else {
 			Member.findOne({_id: req.body.id}, function(err, player) {
