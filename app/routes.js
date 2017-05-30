@@ -419,7 +419,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/schedule', function(req, res) {
-		Tournament.findOne({name: 'Summer League'}).populate({
+		Tournament.findOne({name: 'Summer 2017'}).populate({
 			path: 'matches',
 			populate: {
 				path: 'home away game1 game2 game3'
