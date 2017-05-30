@@ -28,7 +28,7 @@ module.exports = function(app) {
 					res.send(tourny);
 				});
 			}
-		})
+		});
 	});
 
 	app.get('/api/tournament', function(req, res) {
@@ -62,48 +62,115 @@ module.exports = function(app) {
 		}
 	});
 
-	app.post('/api/match', function(req, res) {
+	app.get('/api/match', function(req, res) {
+		var round = req.query.round;		
+		var query = {};
+		if (round) {
+			query.round = round;
+		}
+
+		Match.find(query).populate('home away').exec(function(err, matches) {
+			if (err) {
+				res.send('Error finding the matches.');
+				return;
+			}
+
+			res.send(matches);
+		});
+
+	});
+
+	app.put('/api/match', function(req, res) {
 		var tournament = req.body.tournament;
 		var home = req.body.home;
 		var away = req.body.away;
 		var round = req.body.round;
 		var date = req.body.date;
 		var time = req.body.time;
+		var game1 = req.body.game1;
+		var game2 = req.body.game2;
+		var game3 = req.body.game3;
 
-		console.log(req.body);
+		if (req.body.id == '' || req.body.id == undefined) {
+			var newMatch = new Match();
+			newMatch.round = round;
+			newMatch.date = date;
+			newMatch.time = time;
+			newMatch.home = home;
+			newMatch.away = away;
+			newMatch.tournament = tournament;
 
-		if (!tournament) {
-			res.send('You must supply a tournament id to assign the match to.');
-		}
+			newMatch.populate('home', function(err) {
+				newMatch.populate('away', function(err) {
+					newMatch.save(function(err, updateMatch) {
+						Tournament.findOne({_id: tournament}, function (err, tourny) {
+							if (err) {
+								console.log('Error updating the tournament.');
+							} else {
+								tourny.matches.push(updateMatch._id);
+								tourny.save();
+							}
+						});
 
-		if (!home) {
-			res.send('Please supply a home team id.');
-		}
-
-		if (!away) {
-			res.send('Please supply an away team id.');
-		}
-
-		var newMatch = new Match();
-		newMatch.round = round;
-		newMatch.date = date;
-		newMatch.time = time;
-		newMatch.home = home;
-		newMatch.away = away;
-
-		newMatch.populate('home', function(err) {
-			newMatch.populate('away', function(err) {
-				newMatch.save(function(err, updateMatch) {
-					Tournament.findOne({_id: tournament}, function (err, tourny) {
-						if (err)
-							res.send('Error finding the tournament.');
-
-						tourny.matches.push(updateMatch._id);
-						tourny.save();
-						res.send(updateMatch);
+						var returnMatch = updateMatch.toObject();
+						returnMatch.isNew = true;
+						res.send(returnMatch);
 					});
 				});
 			});
+		} else {
+			Match.findOne({_id: req.body.id}, function(err, match) {
+				if (match.tournament) {
+					if (match.tournament.equals(tournament)) {
+						console.log('Changing the tournament from the match isn\'t currently supported');
+					}
+				}
+
+				if (round)
+					match.round = round;
+				if (tournament)
+					match.tournament = tournament;
+				if (time)
+					match.time = time;
+				if (home)
+					match.home = home;
+				if (away)
+					match.away = away;
+				if (date)
+					match.date = date;
+				if (game1)
+					match.game1 = game1;
+				if (game2)
+					match.game2 = game2;
+				if (game3)
+					match.game3 = game3;
+
+				match.save(function(err, updatedMatch) {
+					updatedMatch.populate('home away game1 game2 game3', function(err, populatedMatch) {
+						res.send(populatedMatch);
+					});
+				});
+			});
+		}
+	});
+
+	app.delete('/api/match', function(req, res) {
+		Match.findOneAndRemove({_id: req.body.id}, function(err, match) {
+			if (err) {
+				res.send('Error removing the match.');
+				return;
+			} else {
+				Tournament.find({}, function(err, tournaments) {
+					tournaments.forEach(function(tournament) {
+						var index = tournament.matches.indexOf(match._id);
+						if (index > -1) {
+							tournament.matches.splice(index, 1);
+							tournament.save();
+						}
+					});
+				});
+				res.send(match);
+			}
 		});
 	});
 
@@ -142,19 +209,33 @@ module.exports = function(app) {
 	});
 
 	app.put('/api/team', function(req, res) {
-		Team.findOne({_id: req.body.id}, function(err, doc) {
-			if (err) {
-				res.send('Error saving the team.');
-			}
+		if (req.body.id == '' || req.body.id == undefined) {
+			var newTeam = new Team();
+			newTeam.name = req.body.name;
+			newTeam.tournament = req.body.tournament;
 
-			if (doc) {
-				doc.name = req.body.name;
-				doc.teammates = req.body.teammates.split('\n');
-				doc.save(function(err, updatedTeam) {
-					res.send(updatedTeam);
-				})
-			}
-		})
+			newTeam.save(function(err, team) {
+				var returnTeam = team.toObject();
+				returnTeam.isNew = true;
+				helpers.addTeamToTournament(team, team.tournament);
+				res.send(returnTeam);
+			});
+		} else {
+			Team.findOne({_id: req.body.id}, function(err, doc) {
+				if (err) {
+					res.send('Error finding the team.');
+				}
+
+				if (doc) {
+					doc.name = req.body.name;
+					doc.tournament = req.body.tournament;
+					doc.save(function(err, updatedTeam) {
+						helpers.addTeamToTournament(doc, doc.tournament);
+						res.send(updatedTeam);
+					});
+				}
+			});
+		}
 	});
 
 	app.get('/api/team', function(req, res) {
@@ -165,31 +246,31 @@ module.exports = function(app) {
 
 	app.delete('/api/team', function(req, res) {
 		Team.findOneAndRemove({_id: req.body.id}, function(err, team) {
-			if (err)
+			if (err) {
 				res.send('Error removing the team.');
+			}
 
 			Tournament.findOne({_id: team.tournament}, function(err, tourny) {
 				var index = 0;
-				for (var i = 0; i < tourny.teams.length; i++) {
-					console.log(team._id + ' -> ' + tourny.teams[i]);
-					if (tourny.teams[i].equals(team._id)) {
-						console.log('found the team')
-						index = i;
+				if (err) {
+					console.log('No tournament for the team');
+				}
+				if (team) {
+					for (var i = 0; i < tourny.teams.length; i++) {
+						if (tourny.teams[i].equals(team._id)) {
+							index = i;
+						}
+						tourny.teams.splice(index, 1);
+						tourny.save();
 					}
 				}
-
-				console.log(index);
-
-				tourny.teams.splice(index, 1);
-				tourny.save(function(err, updatedTourny) {
-					res.send(true);
-				});
 			});
-		})
+			res.send(team);
+		});
 	});
 
 	app.get('/api/player', function(req, res) {
-		Member.find().populate('team').exec(function(err, players) {
+		Member.find().exec(function(err, players) {
 			res.send(players);
 		});
 	});
@@ -210,8 +291,70 @@ module.exports = function(app) {
 			if (err) {
 				res.send('Error saving player');
 			} else {
+				helpers.addTeammate(member.team, member);
 				res.send(member);
 			}
+		});
+	});
+
+	app.put('/api/player', function(req, res) {
+		if (!req.body) {
+			res.send('Error. No body found in request.');
+			return;
+		}
+
+		if (req.body.id == '' || req.body.id == undefined) {
+			var newPlayer = new Member();
+			newPlayer.name = req.body.name;
+			newPlayer.team = req.body.team;
+			newPlayer.paid = req.body.paid;
+			newPlayer.email = req.body.email;
+			newPlayer.save(function(err, updatedPlayer) {
+				helpers.addTeammate(newPlayer.team, updatedPlayer);
+				var returnPlayer = updatedPlayer.toObject();
+				returnPlayer.isNew = true;
+				res.send(returnPlayer);
+			});
+		} else {
+			Member.findOne({_id: req.body.id}, function(err, player) {
+				if (err) {
+					res.send('Error finding player');
+					console.log(err);
+					return;
+				}
+
+				if (player) {
+					player.name = req.body.name;
+					player.team = req.body.team;
+					player.paid = req.body.paid;
+					player.email = req.body.email;
+					player.save(function(err, updatedPlayer) {
+						helpers.addTeammate(player.team, updatedPlayer);
+						res.send(updatedPlayer);
+					});
+				}
+			});
+		}
+	});
+
+	app.delete('/api/player', function(req, res) {
+		console.log(req.body);
+
+		Member.findOneAndRemove({_id: req.body.id}, function(err, member) {
+			if (err) {
+				res.send('Error finding and removing the player.');
+			}
+
+			Team.find({_id: member.team}, function(err, teams) {
+				teams.forEach(function(team) {
+					var index = team.teammates.indexOf(member._id);
+					if (index > -1) {
+						team.teammates.splice(index, 1);
+						team.save();
+					}
+				});
+				res.send(member);
+			});
 		});
 	});
 
@@ -224,7 +367,7 @@ module.exports = function(app) {
 			}
 			
 			// remove the previous matches
-			match.remove({_id : {$in : tourny.matches}}).exec();
+			Match.remove({_id : {$in : tourny.matches}}).exec();
 			tourny.matches = [];
 
 			helpers.generateRoundRobin(tourny, function(updatedTourny) {
@@ -262,7 +405,19 @@ module.exports = function(app) {
 	});
 
 	app.get('/', function(req, res) {
-		console.log('sending index');
 		res.render('index');
-	})
+	});
+
+	app.get('/schedule', function(req, res) {
+		Tournament.findOne({name: 'Summer League'}).populate({
+			path: 'matches',
+			populate: {
+				path: 'home away game1 game2 game3'
+			}
+		}).exec(function(err, tourny) {
+			res.render('schedule', {
+				matches: tourny.matches
+			});
+		});
+	});
 }

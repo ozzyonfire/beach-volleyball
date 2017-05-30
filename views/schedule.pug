@@ -1,0 +1,44 @@
+doctype html
+include mixins
+html
+	include head
+		script(src='js/schedule.js')
+		title Schedule
+	body
+		+navbar('schedule')
+
+		.text-center
+			h1 Schedule
+		.container
+			table.table.table-striped.table-hover#scheduleTable
+				thead
+					tr
+						th Round/Week
+						th Start Time
+						th Home
+						th Away
+						th Game 1 Winner
+						th Game 2 Winner
+						th Game 3 Winner
+				tbody
+					each match in matches
+						tr(id="row-"+match._id, data-toggle="modal", data-target="#matchModal")
+							td= match.round
+							td= match.time
+							td= match.home.name
+							td= match.away.name
+							td(id="game1-"+match._id)= match.game1 ? match.game1.name : ''
+							td(id="game2-"+match._id)= match.game2 ? match.game2.name : ''
+							td(id="game3-"+match._id)= match.game3 ? match.game3.name : ''
+		+genericModal('matchModal', 'Report Scores')
+			form#scoreForm
+				input#matchModal_id(type="hidden", name="id")
+				.form-group
+					label(for="game1-team") Game 1 Winner
+					select.form-control#game1-team(name="game1")
+				.form-group
+					label(for="game2-team") Game 2 Winner
+					select.form-control#game2-team(name="game2")
+				.form-group
+					label(for="game3-team") Game 3 Winner
+					select.form-control#game3-team(name="game3")

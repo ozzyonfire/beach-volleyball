@@ -9,31 +9,49 @@ $(document).ready(function() {
 	});
 
 	// Team Tab
-	$('#teamModal_save').click(function(e) {
-		$.post('/api/team', $('#teamForm').serialize())
-			.done(function(team) {
-				addTeamButtonAndModal(team);
+	$('#teamPanelButton').click(function(e) {
+		$('#teamGroup').empty();
+		$.get('/api/team').done(function(teams) {
+			teams.forEach(function(team) {
+				addTeamButton(team);
 			});
+		});
 	});
 
-	$.get('/api/team').done(function(teams) {
-		teams.forEach(function(team) {
+	$(document).on('click', '#addTeamButton', function(e) {
+		var blankTeam = {
+			name: '',
+			team: '',
+			teammates: [],
+		};
+		showTeamModal(blankTeam);
+	});
+
+	$('#teamModal_save').click(function(e) {
+		$.ajax({
+			url:'/api/team', 
+			data: $('#teamForm').serialize(),
+			method: 'put'
+		}).done(function(team) {
 			var id = team._id;
+			if (team.isNew) {
+				addTeamButton(team);
+			} else {
+				$('#'+id+'_list').click(function(e) {
+					showTeamModal(team);
+				});
+				$('#'+id+'_list').text(team.name);
+			}
+		});
+	});
 
-			// modal button
-			$('#'+id+'_list').click(function(e) {
-				showTeamModal(team);
-			});
-
-			// save button
-			$('#'+id+'_save').click(function(e) {
-				saveTeam(team);
-			});
-
-			// delete button
-			$('#'+id+'_remove').click(function(e) {
-				deleteTeam(team);
-			});
+	$('#teamModal_remove').click(function(e) {
+		$.ajax({
+			url: '/api/team',
+			method: 'delete',
+			data: $('#teamForm').serialize()
+		}).done(function(team) {
+			$('#'+team._id+'_list').remove();
 		});
 	});
 
@@ -42,10 +60,10 @@ $(document).ready(function() {
 	populateMatches(currentTourny);
 
 	$('#addMatchButton').click(function(e) {
-		$.post('/api/match', $('#matchForm').serialize())
-			.done(function(match) {
-				addMatchButtonAndModal(match);
-			});
+		showMatchModal({
+			home: {},
+			away: {}
+		});
 	});
 
 	$('#generateRoundRobinButton').click(function(e) {
@@ -56,16 +74,80 @@ $(document).ready(function() {
 			});
 	});
 
-	$('#tournaments').change(function(e) {
-		var id = $('#tournaments').val();
-		populateMatches(id);
+	$('#matchModal_remove').click(function(e) {
+		$.ajax({
+			url: '/api/match',
+			data: $('#matchForm').serialize(),
+			method: 'delete'
+		}).done(function(match) {
+			$('#'+match._id+'_row').remove();
+		});
+	});
+
+	$('#matchModal_save').click(function(e) {
+		$.ajax({
+			url: '/api/match',
+			method: 'put',
+			data: $('#matchForm').serialize()
+		}).done(function(match) {
+			if (match.isNew) {
+				addMatchTable(match);
+			} else {
+				$('#round-'+match._id).text(match.round);
+				if (match.home) {
+					$('#home-'+match._id).text(match.home.name);
+				}
+				if (match.away) {
+					$('#away-'+match._id).text(match.away.name);
+				}
+				if (match.date) {
+					$('#match-'+match._id).text(match.date.substring(0,10));
+				}
+				$('#time-'+match._id).text(match.time);
+
+				$('#row-'+match._id).click(function(e) {
+					showMatchModal(match);
+				});
+			}
+		});
 	});
 
 	// Players Tab
 	$('#playerModal_save').click(function(e) {
-		$.post('/api/player', $('#playerForm').serialize(), function(response) {
-			addPlayerToList(response);
+		$.ajax({
+			url : '/api/player', 
+			data: $('#playerForm').serialize(),
+			method: 'put'
+	}).done(function(player) {
+			if (player.isNew) {
+				addPlayerToList(player);
+			} else {
+				$('#'+player._id).click(function(e) {
+					populatePlayerForm(player);
+				});
+			}
 		});
+	});
+
+	$('#playerModal_remove').click(function(e) {
+		$.ajax({
+			url: '/api/player',
+			data: $('#playerForm').serialize(),
+			method: 'delete'
+		}).done(function(member) {
+			$('#'+member._id).remove();
+		});
+	});
+
+	$(document).on('click', '#addPlayerButton', function(e) {
+		var blankPlayer = {
+			name: '',
+			email: '',
+			team: '',
+			paid: false,
+			_id: ''
+		};
+		populatePlayerForm(blankPlayer);
 	});
 
 	$.get('/api/player').done(function(players) {
@@ -75,6 +157,7 @@ $(document).ready(function() {
 	});
 });
 
+// Functions
 function addPlayerToList(player) {
 	var button = $('<button></button>').addClass('list-group-item');
 	button.prop('type', 'button').attr('data-toggle','modal');
@@ -82,34 +165,47 @@ function addPlayerToList(player) {
 	button.prop('id', player._id);
 
 	button.click(function(e) {
-		// populate the form with this info
-		$('#player-name').val(player.name);
-		$('#email').val(player.email);
-		$('#paid').prop('checked', player.paid);
-		$('#playerModal_label').text(player.name);
-		$('#playerModal_remove').prop('disabled', '');
+		populatePlayerForm(player);
 	});
 
 	$('#playerGroup').append(button);
 }
 
-// Functions
+function populatePlayerForm(player) {
+	// populate the form with this info
+	$('#player-name').val(player.name);
+	$('#email').val(player.email);
+	$('#paid').prop('checked', player.paid);
+	if (player.name !== '')
+		$('#playerModal_label').text(player.name);
+	else
+		$('#playerModal_label').text('New Player');
+	if (player._id)
+		$('#playerModal_remove').prop('disabled', '');
+	else
+		$('#playerModal_remove').prop('disabled', 'disabled');
+	$('#playerModal_id').val(player._id);
+	$('#player-team').val(player.team);
+}
 
 function showTeamModal(team) {
 	$('#teamName').val(team.name);
 	$('#tournament').val(team.tournament);
 	$('#teammateGroup').empty();
 	team.teammates.forEach(function(mate) {
-		$('teammateGroup').append($('<li class="list-group-item"></li>').text(mate.name))
+		$('#teammateGroup').append($('<li class="list-group-item"></li>').text(mate.name));
 	});
+	$('#teamModal_id').val(team._id);
+	if (team._id != '' || team._id != undefined)
+		$('#teamModal_remove').prop('disabled', '');
+	else
+		$('#teamModal_remove').prop('disabled', 'disabled');
 }
 
 function populateMatches(id) {
 	$('matchTableBody').empty();
 	$.get('/api/tournament', {id: id}).done(function(tourny) {
 		// populate the matches
-		console.log('from populateMatches');
-		console.log(tourny);
 		tourny.matches.forEach(function(match) {
 			addMatchTable(match);
 		});
@@ -148,19 +244,22 @@ function deleteTeam(team) {
 		data: $('#'+id+'_form').serialize()
 	}).done(function(response) {
 		$('#'+id+'_list').remove();
-		//$('#'+id+'_modal').remove();
 	});
 }
 
 function addMatchTable(match) {
 	var tableBody = $('#matchTableBody');
 
-	var matchRow = $('<tr></tr>');
-	var roundCol = $('<td></td>').text(match.round);
-	var homeCol = $('<td></td>').text(match.home.name);
-	var awayCol = $('<td></td>').text(match.away.name);
-	var dateCol = $('<td></td>').text(match.date);
-	var timeCol = $('<td></td>').text(match.time);
+	var matchRow = $('<tr></tr>').attr('data-toggle','modal').attr('data-target','#matchModal');
+	matchRow.prop('id', match._id+'_row');
+	var roundCol = $('<td id="round-'+match._id+'"></td>').text(match.round);
+	var homeCol = $('<td id="home-'+match._id+'"></td>').text(match.home.name);
+	var awayCol = $('<td id="away-'+match._id+'"></td>').text(match.away.name);
+	var dateCol = $('<td id="date-'+match._id+'"></td>');
+	if (match.date) {
+		dateCol.text(match.date.substring(0,10));
+	}
+	var timeCol = $('<td id="time-'+match._id+'"></td>').text(match.time);
 
 	matchRow.append(roundCol);
 	matchRow.append(homeCol);
@@ -168,80 +267,42 @@ function addMatchTable(match) {
 	matchRow.append(dateCol);
 	matchRow.append(timeCol);
 
+	matchRow.click(function(e) {
+		showMatchModal(match);
+	});
+
 	tableBody.append(matchRow);
 }
 
-function addTeamButtonAndModal(team) {
+function showMatchModal(match) {
+	if (match._id != '' || match._id != undefined)
+		$('#matchModal_label').text(match.home.name + ' vs. ' + match.away.name);
+	else
+		$('#matchModal_label').text('New Match');
+	$('#round').val(match.round);
+	$('#home').val(match.home._id);
+	$('#away').val(match.away._id);
+	if (match.date)
+		$('#date').val(match.date.substring(0,10));
+	else
+		$('#date').val('');
+	$('#time').val(match.time);
+	$('#matchModal_id').val(match._id);
+	if (match._id != '' || match._id != undefined)
+		$('#matchModal_remove').prop('disabled', '');
+	else
+		$('#matchModal_remove').prop('disabled', 'disabled');
+}
+
+function addTeamButton(team) {
 	var button = $('<button></button>').addClass('list-group-item');
 	button.prop('type', 'button').attr('data-toggle','modal');
-	button.attr('data-target','#'+team._id+'_modal').text(team.name);
+	button.attr('data-target','#teamModal').text(team.name);
 	button.prop('id', team._id+'_list');
 
-	var modal = $('<div></div>').addClass('modal fade').prop('id', team._id+'_modal');
-	modal.prop('tabindex', '-1').prop('role', 'dialog');
-
-	var modalDialog = $('<div></div>').addClass('modal-dialog').prop('role','document');
-	var modalContent = $('<div></div>').addClass('modal-content');
-	var modalHeader = $('<div></div>').addClass('modal-header');
-
-	var xButton = $('<button></button>').addClass('close').prop('type','button');
-	xButton.prop('data-dismiss', 'modal').append($('<span></span>').prop('aria-hidden', 'true').text('&times;'));
-
-	modalHeader.append(xButton);
-	modalHeader.append($('<h4></h4>').addClass('modal-title').text('Editing ' + team.name));
-
-	var modalBody = $('<div></div>').addClass('modal-body');
-
-	var form = $('<form></form>').prop('id', team._id+"_form");
-	var hiddenInput = $('<input type="hidden" name="id">').prop('value', team._id);
-
-	form.append(hiddenInput);
-
-	var formGroupName = $('<div></div>').addClass('form-group');
-	formGroupName.append($('<label for="teamName">Team Name</label>'));
-	formGroupName.append($('<input type="text" class="form-control" id="teamName" name="name">').prop('value', team.name));
-
-	var formGroupMembers = $('<div></div>').addClass('form-group');
-	formGroupMembers.append($('<label for="teammates">Members</label>'));
-	formGroupMembers.append($('<p class="help-block">Enter the names of the members separated by newlines.</p>'));
-	var textarea = $('<textarea rows="5" class="form-control" id="teammates" name="teammates"></textarea>');
-	team.teammates.forEach(function(member) {
-		textarea.append(member + '\n');
+	button.click(function(e) {
+		showTeamModal(team);
 	});
-	formGroupMembers.append(textarea);
-
-	form.append(formGroupName);
-	form.append(formGroupMembers);
-
-	modalBody.append(form);
-
-	var modalFooter = $('<div></div>').addClass('modal-footer');
-	var closeButton = $('<button></button>').addClass('btn btn-default').prop('type','button').attr('data-dismiss', 'modal').text('Cancel');
-	var saveButton = $('<button></button>').addClass('btn btn-primary').prop('type','button').prop('id', team._id+'_save').attr('data-dismiss','modal').text('Save');
-	var deleteButton = $('<button></button>').addClass('btn btn-danger').prop('type','button').prop('id', team._id+'_remove').attr('data-dismiss', 'modal').text('Delete');
-
-	saveButton.click(function(e) {
-		saveTeam(team);
-	});
-	deleteButton.click(function(e) {
-		deleteTeam(team);
-	});
-
-	modalFooter.append(closeButton);
-	modalFooter.append(saveButton);
-	modalFooter.append(deleteButton);
-
-	modalContent.append(modalHeader);
-	modalContent.append(modalBody);
-	modalContent.append(modalFooter);
-
-	modalDialog.append(modalContent);
-	modal.append(modalDialog);
 
 	$('#teamGroup').append(button);
-	$('#teamGroup').append(modal);
-
-	// add the matches
-	$('#home').append($('<option></option>').text(team.name).prop('value', team._id));
-	$('#away').append($('<option></option>').text(team.name).prop('value', team._id));
 }

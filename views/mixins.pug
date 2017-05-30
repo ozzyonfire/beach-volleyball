@@ -39,3 +39,46 @@ mixin genericModal(id, title)
 					button(type="button", class="btn btn-default", data-dismiss="modal") Cancel
 					button(type="button", class="btn btn-primary", data-dismiss="modal", id=id+"_save") Save
 					button(type="button", class="btn btn-danger", data-dismiss="modal", id=id+"_remove" disabled="disabled") Delete
+
+mixin navbar(active)
+	nav(class="navbar navbar-inverse navbar-fixed-top")
+			div(class="container")
+				div(class="navbar-header")
+					button(type="button", class="navbar-toggle collapsed", data-toggle="collapse", data-target="#navbar", aria-expanded="false", aria-controls="navbar")
+						span(class="sr-only") Toggle navigation
+						span(class="icon-bar")
+						span(class="icon-bar")
+						span(class="icon-bar")
+					a(class="navbar-brand", href="/") Campbell's Beach Volleyball
+				div(id="navbar", class="collapse navbar-collapse")
+					ul(class="nav navbar-nav")
+						if active == "home"
+							li.active
+								a(href="/") Home
+						else
+							li
+								a(href="/") Home
+						if active == 'schedule'
+							li.active
+								a(href="/schedule") Schedule
+						else
+							li
+								a(href="/schedule") Schedule
+						if active == 'stats'
+							li.active
+								a(href="/stats") Stats
+						else
+							li
+								a(href="/stats") Stats
+						if active == 'rules'
+								li.active
+								a(href="/rules") Rules
+						else
+							li
+								a(href="/rules") Rules
+						if active == 'setup'
+							li.active
+								a(href="/setup") Setup
+						else
+							li
+								a(href="/setup") Setup

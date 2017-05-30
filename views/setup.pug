@@ -1,35 +1,12 @@
 doctype html
 include mixins
 html
-	head
-		title= title
-		script(src="https://code.jquery.com/jquery-3.2.1.min.js", integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=", crossorigin="anonymous")
-		link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u", crossorigin="anonymous")
-		script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
-		link(rel="stylesheet", href="/css/styles.css")
+	include head
 		script(src="js/setup.js")
+		title Setup
 	body
-		nav(class="navbar navbar-inverse navbar-fixed-top")
-			div(class="container")
-				div(class="navbar-header")
-					button(type="button", class="navbar-toggle collapsed", data-toggle="collapse", data-target="#navbar", aria-expanded="false", aria-controls="navbar")
-						span(class="sr-only") Toggle navigation
-						span(class="icon-bar")
-						span(class="icon-bar")
-						span(class="icon-bar")
-					a(class="navbar-brand", href="/") Summer Beach Volleyball 2017
-				div(id="navbar", class="collapse navbar-collapse")
-					ul(class="nav navbar-nav")
-						li
-							a(href="#") Home
-						li
-							a(href="/orders") Schedule
-						li
-							a(href="/stats") Stats
-						li
-							a(href="/rules") Rules
-						li(class="active")
-							a(href="/setup") Setup
+		
+		+navbar('setup')
 		
 		.text-center
 			h1 Tournament Setup
@@ -39,7 +16,7 @@ html
 					li(class="active")
 						a(data-toggle="tab" href="#createTournament") Tournaments
 					li
-						a(data-toggle="tab" href="#createTeams") Teams
+						a#teamPanelButton(data-toggle="tab" href="#createTeams") Teams
 					li
 						a(data-toggle="tab" href="#createMatches") Matches
 					li
@@ -58,11 +35,10 @@ html
 							button(class="list-group-item", type="button", data-toggle="modal", data-target="#"+tournament._id+'_modal', id=tournament._id+'_list')= tournament.name
 				div(class="tab-pane fade in", id="createTeams")
 					.list-group#teamGroup
-						each team in teams
-							button(class="list-group-item", type="button", data-toggle="modal", data-target="#teamModal", id=team._id+'_list')= team.name
-					button.btn.btn-default#addPlayerButton(type="button", data-toggle="modal", data-target="#teamModal") Add Team
+					button.btn.btn-default#addTeamButton(type="button", data-toggle="modal", data-target="#teamModal") Add Team
 					+genericModal('teamModal', 'New Team')
 						form#teamForm
+							input#teamModal_id(type="hidden", name="id")
 							.form-group
 								label(for="tournaments_team") Tournament
 								select(class="form-control", id="tournaments_team", name="tournament")
@@ -71,41 +47,44 @@ html
 							.form-group
 								label(for="teamName") Team Name
 								input(type="text", class="form-control", id="teamName", name="name")
+							label Teammates
 							ul.list-group#teammateGroup
 				div(class="tab-pane fade in", id="createMatches")
-					form#matchForm(class="form-horizontal")
-						.form-group
-							.col-lg-12
-								label(for="tournaments") Tournament
-								select(class="form-control", id="tournaments", name="tournament")
-									each tournament in tournaments
-										option(value=tournament._id)= tournament.name
-						.form-group
-							.col-lg-12
-								label(for="round") Round (or Week)
-								input(type="number", class="form-control", id="round", name="round")
-						.form-group
-							.col-lg-6
-								label(for="home") Home
-								select(class="form-control", id="home", name="home")
-									each team in teams
-										option(value=team._id)= team.name
-							.col-lg-6
-								label(for="away") Away
-								select(class="form-control", id="away", name="away")
-									each team in teams
-										option(value=team._id)= team.name
-						.form-group
-							.col-lg-12
-								label(for="date") Date
-								input(type="date", class="form-control", id="date", name="date")
-						.form-group
-							.col-lg-12
-								label(for="time") Time
-								input(type="time", class="form-control", id="time", name="time")
-						.btn-group
-							button(type="button", class="btn btn-primary", id="addMatchButton") Add Match
-							button(type="button", class="btn btn-success", id="generateRoundRobinButton") Generate Round Robin
+					+genericModal('matchModal', 'New Match')
+						form#matchForm(class="form-horizontal")
+							input#matchModal_id(type="hidden", name="id")
+							.form-group
+								.col-lg-12
+									label(for="tournaments") Tournament
+									select(class="form-control", id="tournaments", name="tournament")
+										each tournament in tournaments
+											option(value=tournament._id)= tournament.name
+							.form-group
+								.col-lg-12
+									label(for="round") Round (or Week)
+									input(type="number", class="form-control", id="round", name="round")
+							.form-group
+								.col-lg-6
+									label(for="home") Home
+									select(class="form-control", id="home", name="home")
+										each team in teams
+											option(value=team._id)= team.name
+								.col-lg-6
+									label(for="away") Away
+									select(class="form-control", id="away", name="away")
+										each team in teams
+											option(value=team._id)= team.name
+							.form-group
+								.col-lg-12
+									label(for="date") Date
+									input(type="date", class="form-control", id="date", name="date")
+							.form-group
+								.col-lg-12
+									label(for="time") Time
+									input(type="time", class="form-control", id="time", name="time")
+					.btn-group
+						button.btn.btn-primary#addMatchButton(type="button", data-toggle="modal", data-target="#matchModal") Add Match
+						button(type="button", class="btn btn-success", id="generateRoundRobinButton") Generate Round Robin
 					hr
 					table.table.table-striped.table-hover
 						thead
@@ -121,6 +100,7 @@ html
 					button.btn.btn-default#addPlayerButton(type="button", data-toggle="modal", data-target="#playerModal") Add Player
 					+genericModal("playerModal", "New Player")
 						form#playerForm
+							input(type="hidden", name="id", id='playerModal_id')
 							.form-group
 								label(for="player-name") Player Name
 								input.form-control(type="text", id="player-name", name="name")
@@ -137,3 +117,4 @@ html
 									option(value="") No Team
 									each team in teams
 										option(value=team._id)= team.name
+		include end

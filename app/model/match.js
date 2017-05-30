@@ -10,15 +10,25 @@ var matchSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: 'Team'
 	},
-	winner: {
+	game1: {
 		type: ObjectId,
 		ref: 'Team'
 	},
-	winningScore: Number,
-	losingScore: Number,
+	game2: {
+		type: ObjectId,
+		ref: 'Team'
+	},
+	game3: {
+		type: ObjectId,
+		ref: 'Team'
+	},
 	round: Number,
 	date: Date,
-	time: String
+	time: String,
+	tournament: {
+		type: ObjectId,
+		ref: 'Tournament'
+	}
 });
 
 module.exports = mongoose.model('Match', matchSchema);

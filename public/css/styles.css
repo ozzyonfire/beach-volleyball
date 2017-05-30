@@ -5,3 +5,7 @@ body {
 .help-text {
 	padding-top: 5px;
 }
+
+.inline-label {
+	padding-right: 10px;
+}

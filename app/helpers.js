@@ -1,20 +1,15 @@
 var Team = require('./model/team');
 var Match = require('./model/match');
+var Tournament = require('./model/tournament');
 
 function newMatch(round, home, away, tournament) {
-
 	console.log('round: ' + round + ' - ' + home + ' vs. ' + away);
 	var newMatch = new Match();
 	newMatch.home = home;
 	newMatch.away = away;
 	newMatch.round = round;
-
+	newMatch.tournament = tournament;
 	return newMatch;
-	// newMatch.save(function(err, match) {
-	// 	console.log('new match round: ' + match.round);
-	// 	tournament.matches.push(match._id);
-	// 	tournament.save();
-	// });
 }
 
 function rotateTeams(teams) {
@@ -94,9 +89,6 @@ module.exports = {
 	},
 	generateRoundRobin : function(tournament, callback) {
 		var teams = tournament.teams;
-
-		console.log(teams);
-
 		if (teams.length % 2 == 1) { // odd number of teams
 			// if there are an odd number of teams, we need to add a Ghost team
 			// if a team plays a Ghost, they get a bye
@@ -111,5 +103,25 @@ module.exports = {
 		} else {
 			makeBracket(tournament, callback);
 		}
+	},
+	addTeammate: function(teamId, player) {
+		Team.findOne({_id: teamId}, function(err, team) {
+			if (err) {
+				return err;
+			}
+
+			if (team) {
+				console.log(team);
+				console.log(team.teammates);
+				team.teammates.push(player._id);
+				team.save();
+			}
+		});
+	},
+	addTeamToTournament: function(team, tournyId) {
+		Tournament.findOne({_id: tournyId}, function(err, tourny) {
+			tourny.teams.push(team._id);
+			tourny.save();
+		});
 	}
 }
