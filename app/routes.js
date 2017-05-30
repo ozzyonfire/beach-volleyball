@@ -422,7 +422,13 @@ module.exports = function(app) {
 		Tournament.findOne({name: 'Summer 2017'}).populate({
 			path: 'matches',
 			populate: {
-				path: 'home away game1 game2 game3'
+				path: 'home away game1 game2 game3',
+				options: {
+					sort: {
+						"round": 1,
+						"time": -1
+					}
+				}
 			}
 		}).exec(function(err, tourny) {
 			if (tourny) {
@@ -435,5 +441,13 @@ module.exports = function(app) {
 				});
 			}
 		});
+	});
+
+	app.get('/stats', function(req, res) {
+		Team.find({}).populate('teammates').exec(function(err, teams) { // all the teams for now
+			res.render('stats', {
+				teams: teams
+			});
+		}); 
 	});
 }

@@ -1,0 +1,30 @@
+doctype html
+include mixins
+html
+	include head
+	script(src="js/stats")
+	title Stats
+body
+	+navbar('stats')
+
+	.text-center
+		h1 Stats
+	.container
+		table.table.table-striped.table-hover#statsTable
+			thead
+				tr
+					th Rank
+					th Team
+					th Wins
+					th Losses
+					th Points
+				tbody
+					each team in teams
+						tr(id="row-"+team._id, data-toggle="modal", data-target="teamModal")
+							td(id="rank-"+team._id) -
+							td= team.name
+							td= team.wins
+							td= team.Losses
+							td(id="points-"+team._id) 0
+	+genericModal('teamModal', 'Team Info')
+		p Breakdown of information goes here. Also the list of the players on that team.
