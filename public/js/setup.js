@@ -101,7 +101,7 @@ $(document).ready(function() {
 					$('#away-'+match._id).text(match.away.name);
 				}
 				if (match.date) {
-					$('#match-'+match._id).text(match.date.substring(0,10));
+					$('#date-'+match._id).text(match.date.substring(0,10));
 				}
 				$('#time-'+match._id).text(match.time);
 
