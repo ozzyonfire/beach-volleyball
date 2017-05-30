@@ -119,8 +119,10 @@ module.exports = {
 	},
 	addTeamToTournament: function(team, tournyId) {
 		Tournament.findOne({_id: tournyId}, function(err, tourny) {
-			tourny.teams.push(team._id);
-			tourny.save();
+			if (tourny.teams.indexOf(team._id) == -1) {
+				tourny.teams.push(team._id);
+				tourny.save();
+			} 
 		});
 	},
 	removeTeammate: function(teamId, player) {
