@@ -251,7 +251,7 @@ function addMatchTable(match) {
 	var tableBody = $('#matchTableBody');
 
 	var matchRow = $('<tr></tr>').attr('data-toggle','modal').attr('data-target','#matchModal');
-	matchRow.prop('id', match._id+'_row');
+	matchRow.prop('id', 'row-'+match._id);
 	var roundCol = $('<td id="round-'+match._id+'"></td>').text(match.round);
 	var homeCol = $('<td id="home-'+match._id+'"></td>').text(match.home.name);
 	var awayCol = $('<td id="away-'+match._id+'"></td>').text(match.away.name);
