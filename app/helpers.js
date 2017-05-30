@@ -122,5 +122,18 @@ module.exports = {
 			tourny.teams.push(team._id);
 			tourny.save();
 		});
+	},
+	removeTeammate: function(teamId, player) {
+		Team.findOne({_id: teamId}, function(err, team) {
+			if (err) {
+				console.log(err);
+			} else {
+				var index = team.members.indexOf(player._id);
+				if (index > -1) {
+					team.member.splice(index, 1);
+					team.save();
+				}
+			}
+		});
 	}
 }

@@ -329,6 +329,7 @@ module.exports = function(app) {
 				}
 
 				if (player) {
+					helpers.removeTeammate(player.team, player);
 					player.name = req.body.name;
 					player.team = req.body.team;
 					player.paid = req.body.paid;
