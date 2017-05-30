@@ -420,9 +420,15 @@ module.exports = function(app) {
 				path: 'home away game1 game2 game3'
 			}
 		}).exec(function(err, tourny) {
-			res.render('schedule', {
-				matches: tourny.matches
-			});
+			if (tourny) {
+				res.render('schedule', {
+					matches: tourny.matches
+				});
+			} else {
+				res.render('schedule', {
+					matches: []
+				});
+			}
 		});
 	});
 }
