@@ -71,7 +71,7 @@ module.exports = function(app) {
 
 		Match.find(query).sort({
 			round: 1,
-			time: -1
+			time: 1
 		}).populate('home away').exec(function(err, matches) {
 			if (err) {
 				res.send('Error finding the matches.');

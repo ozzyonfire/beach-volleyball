@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	$('#scheduleTable').DataTable({
 		pageLength: 50,
-		order: [[0, 'asc'], [1, 'desc']]
+		order: [[0, 'asc'], [1, 'asc']]
 	});
 
 	$.get('/api/match', {name: 'Summer League'}).done(function(matches) {
