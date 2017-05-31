@@ -9,3 +9,8 @@ body {
 .inline-label {
 	padding-right: 10px;
 }
+
+.after-dinner {
+	background-color: darkslateblue;
+  color: white;
+}
