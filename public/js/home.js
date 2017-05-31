@@ -1,14 +1,11 @@
 $(document).ready(function() {
 	$('#weekSelect').change(function(e) {
-		$.get('/api/match', {round: $('#weekSelect').val()})
-			.done(function(matches) {
-				$('#matchTableBody').empty();
-				makeMatchTable(matches);
-			});
+		updateMatchTable();
 	});
 
 	$.get('/api/settings').done(function(settings) {
 		$('#weekSelect').val(settings.currentWeek);
+		updateMatchTable();
 	});
 });
 
@@ -25,5 +22,13 @@ function makeMatchTable(matches) {
 		row.append(awayCol);
 
 		$('#matchTableBody').append(row);
+	});
+}
+
+function updateMatchTable() {
+	$.get('/api/match', {round: $('#weekSelect').val()})
+	.done(function(matches) {
+		$('#matchTableBody').empty();
+		makeMatchTable(matches);
 	});
 }
