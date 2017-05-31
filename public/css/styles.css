@@ -14,3 +14,39 @@ body {
 	background-color: darkslateblue;
   color: white;
 }
+
+.carousel img.up {
+	transform: translateY(-200px);
+}
+
+.carousel img.half-up {
+	transform: translateY(-50%);
+}
+
+.carousel img.quarter-up {
+	transform: translateY(-25%);
+}
+
+.carousel img {
+	width: 100%;
+}
+
+.carousel-inner {
+	max-height: 450px;
+}
+
+.carousel-inner .carousel-caption {
+	top: 275px;
+}
+
+@media (max-width: 1000px) {
+	.carousel img.up {
+		transform: translateY(0px);
+	}
+	.carousel img.half-up {
+		transform: translateY(0px);
+	}
+	.carousel img.quarter-up {
+		transform: translateY(0px);
+	}
+}

@@ -1,13 +1,70 @@
 include mixins
 html
 	include head
-		title Campbell's Beach Volleyball
+		title Campbell's Beach League
 		script(src="js/home.js")
 
 	body
 		+navbar('home')
+		.carousel.slide#homeCarousel(data-ride="carousel")
+			ol.carousel-indicators
+				li.active(data-target="#homeCarousel", data-slide-to="0")
+				li(data-target="#homeCarousel", data-slide-to="1")
+				li(data-target="#homeCarousel", data-slide-to="2")
+				li(data-target="#homeCarousel", data-slide-to="3")
+				li(data-target="#homeCarousel", data-slide-to="4")
+				li(data-target="#homeCarousel", data-slide-to="5")
+				li(data-target="#homeCarousel", data-slide-to="6")
+				li(data-target="#homeCarousel", data-slide-to="7")
+			.carousel-inner(role="listbox")
+				.item.text-center.active
+					img.up(src="img/babes.jpg")
+					.carousel-caption
+						h3 The Heat is On!
+						p Smash or block?
+				.item.text-center
+					img.up(src="img/ang.jpg")
+					.carousel-caption
+						h3 Super Girl
+						p Ang with a diving save!
+				.item.text-center
+					img.half-up(src="img/dazed.jpg")
+					.carousel-caption
+						h3 Warm up
+						p It's important to stretch.
+				.item.text-center
+					img.up(src="img/fun-times.jpg")
+					.carousel-caption
+						h3 Fun times
+						p It doesn't always have to be so serious... 
+				.item.text-center
+					img(src="img/phantom-power.jpg")
+					.carousel-caption
+						h3 Strike a Pose
+						p Back out to Phantom Power.
+				.item.text-center
+					img.quarter-up(src="img/social-committee.jpg")
+					.carousel-caption
+						h3 Meet with Friends!
+						p Eat some snacks, drink some beer.
+				.item.text-center
+					img.quarter-up(src="img/spectators.jpg")
+					.carousel-caption
+						h3 Witness True Volleyball Skill
+						p Cheer or chirp, you decide. 
+				.item.text-center
+					img.quarter-up(src="img/sunny-court.jpg")
+					.carousel-caption
+						h3 Action Packed
+						p Here for a good time, not a long time.
+			a.left.carousel-control(href="#homeCarousel", role="button", data-slide="prev")
+				span.glyphicon.glyphicon-chevron-left
+				span.sr-only Previous
+			a.right.carousel-control(href="#homeCarousel" data-slide="next")
+				span.glyphicon.glyphicon-chevron-right(aria-hidden="true")
+				span.sr-only Next
 
-		div(class="container")
+		.container
 			h2 Announcements
 			p Games for the first week were cancelled :(. We will officially start Thursday, June 1, 2017.
 			hr
