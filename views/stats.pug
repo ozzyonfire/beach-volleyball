@@ -2,8 +2,8 @@ doctype html
 include mixins
 html
 	include head
-	script(src="js/stats")
-	title Stats
+		script(src="js/stats.js")
+		title Stats
 body
 	+navbar('stats')
 
@@ -27,4 +27,5 @@ body
 							td= team.Losses
 							td(id="points-"+team._id) 0
 	+genericModal('teamModal', 'Team Info')
-		p Breakdown of information goes here. Also the list of the players on that team.
+		label Teammates
+		ul.list-group#playerList
