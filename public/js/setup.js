@@ -1,6 +1,10 @@
 $(document).ready(function() {
 
 	// Settings Tab
+	$.get('/api/settings').done(function(settings) {
+		$('#currentWeek').val(settings.currentWeek);
+	});	
+
 	$('#currentWeek').change(function(e) {
 		$.ajax({
 			url: '/api/settings',
