@@ -1,5 +1,16 @@
 $(document).ready(function() {
 
+	// Settings Tab
+	$('#currentWeek').change(function(e) {
+		$.ajax({
+			url: '/api/settings',
+			method: 'put',
+			data: $('#settingsForm').serialize()
+		}).done(function(settings) {
+			console.log(settings);
+		});
+	});
+
 	// Tournament Tab
 	$('#addTournamentButton').click(function(e) {
 		$.post('/api/tournament', $('#tournamentForm').serialize())

@@ -2,6 +2,7 @@ var Tournament = require('./model/tournament');
 var Match = require('./model/match');
 var Team = require('./model/team');
 var Member = require('./model/member');
+var Settings = require('./model/settings');
 var helpers = require('./helpers');
 
 module.exports = function(app) {
@@ -386,6 +387,35 @@ module.exports = function(app) {
 			helpers.generateRoundRobin(tourny, function(updatedTourny) {
 				res.send(updatedTourny); // it may not have all the games in it yet
 			});
+		});
+	});
+
+	app.get('/api/settings', function(req, res) {
+		Settings.findOne({}, function(err, settings) {
+			if (err) {
+				res.send('Error grabbing the settings');
+			} else {
+				res.send(settings);
+			}
+		});
+	});
+
+	app.put('/api/settings', function(req, res) {
+		Settings.findOne({}, function(err, settings) {
+			if (err) {
+				res.send('Error saving the settings');
+			} else if (settings) {
+				settings.currentWeek = req.body.currentWeek;
+				settings.save(function(err, updatedSettings) {
+					res.send(updatedSettings);
+				});
+			} else {
+				var newSettings = new Settings();
+				newSettings.currentWeek = req.body.settings;
+				newSettings.save(function(err, savedSettings) {
+					res.send(savedSettings);
+				});
+			}
 		});
 	});
 

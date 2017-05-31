@@ -6,6 +6,10 @@ $(document).ready(function() {
 				makeMatchTable(matches);
 			});
 	});
+
+	$.get('/api/settings').done(function(settings) {
+		$('#weekSelect').val(settings.currentWeek);
+	});
 });
 
 function makeMatchTable(matches) {
