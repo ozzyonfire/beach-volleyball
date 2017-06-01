@@ -15,6 +15,11 @@ body {
   color: white;
 }
 
+#homeCarousel {
+	max-height: 100%;
+	overflow: hidden;
+}
+
 .carousel img.up {
 	transform: translateY(-200px);
 }
@@ -31,12 +36,15 @@ body {
 	width: 100%;
 }
 
+/*
 .carousel-inner {
 	max-height: 450px;
 }
+*/
 
 .carousel-inner .carousel-caption {
-	top: 275px;
+	position: absolute;
+	top: 0;
 }
 
 @media (max-width: 1000px) {
