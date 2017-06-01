@@ -41,16 +41,17 @@ mixin genericModal(id, title)
 					button(type="button", class="btn btn-danger", data-dismiss="modal", id=id+"_remove" disabled="disabled") Delete
 
 mixin navbar(active)
-	nav(class="navbar navbar-default navbar-fixed-top")
-			div(class="container")
+	div(class="navbar navbar-default navbar-fixed-top")
+			div(class="container-fluid")
 				div(class="navbar-header")
-					button(type="button", class="navbar-toggle collapsed", data-toggle="collapse", data-target="#navbar", aria-expanded="false", aria-controls="navbar")
+					button(type="button", class="navbar-toggle collapsed", data-toggle="collapse", data-target="#navbar-main", aria-expanded="false", aria-controls="navbar")
 						span(class="sr-only") Toggle navigation
 						span(class="icon-bar")
 						span(class="icon-bar")
 						span(class="icon-bar")
 					a(class="navbar-brand", href="/") Campbell's Beach League
-				div(id="navbar", class="collapse navbar-collapse")
+				
+				div(id="navbar-main", class="collapse navbar-collapse")
 					ul(class="nav navbar-nav")
 						if active == "home"
 							li.active

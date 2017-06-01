@@ -2,7 +2,6 @@ include mixins
 html
 	include head
 		title Campbell's Beach League
-		script(src="js/home.js")
 
 	body
 		+navbar('home')
@@ -66,7 +65,8 @@ html
 
 		.container
 			h2 Announcements
-			p Games for the first week were cancelled :(. We will officially start Thursday, June 1, 2017.
+			p Even though there is only 7 weeks set up in the schedule so far, there will be at least 14 weeks of play. 
+			p BYOB. Drink responsibly.
 			hr
 			h2 Upcoming Games
 			form.form-inline
@@ -87,3 +87,6 @@ html
 						th Home
 						th Away
 				tbody#matchTableBody
+
+	include end
+		script(src="js/home.js")
