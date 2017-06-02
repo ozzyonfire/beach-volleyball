@@ -137,7 +137,7 @@ $(document).ready(function() {
 			if (player.isNew) {
 				addPlayerToList(player);
 			} else {
-				$('#'+player._id).click(function(e) {
+				$('#row-'+player._id).click(function(e) {
 					populatePlayerForm(player);
 				});
 			}
@@ -177,7 +177,7 @@ function addPlayerToList(player) {
 	var button = $('<button></button>').addClass('list-group-item');
 	button.prop('type', 'button').attr('data-toggle','modal');
 	button.attr('data-target','#playerModal').text(player.name);
-	button.prop('id', player._id);
+	button.prop('id', 'row-'+player._id);
 
 	button.click(function(e) {
 		populatePlayerForm(player);
@@ -190,7 +190,10 @@ function populatePlayerForm(player) {
 	// populate the form with this info
 	$('#player-name').val(player.name);
 	$('#email').val(player.email);
-	$('#paid').prop('checked', player.paid);
+	if (player.paid)
+		$('#paid').prop('checked', player.paid);
+	else
+		$('#paid').prop('checked', false);
 	if (player.name !== '')
 		$('#playerModal_label').text(player.name);
 	else

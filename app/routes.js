@@ -246,7 +246,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/api/team', function(req, res) {
-		Team.find().populate('teammates').exec(function(err, docs) {
+		Team.find().populate('teammates paid').exec(function(err, docs) {
 			res.send(docs);
 		});
 	});
