@@ -198,6 +198,7 @@ module.exports = function(app) {
 				var newMember = new Member();
 				newMember.name = teammate;
 				newMember.team = team._id;
+				newMember.paid = false;
 				newMember.save(function(err, member) {
 					team.teammates.push(member._id);
 					team.save();
@@ -335,7 +336,7 @@ module.exports = function(app) {
 				}
 
 				if (player) {
-					if (player.team.equals(req.body.team)) {
+					if (!player.team.equals(req.body.team)) {
 						helpers.removeTeammate(player.team, player);
 					}
 					player.name = req.body.name;
