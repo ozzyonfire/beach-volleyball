@@ -60,6 +60,14 @@ module.exports = function(app) {
 				}
 				res.send(doc);
 			});
+		} else {
+			Tournament.find({}, function(err, docs) {
+				if (err) {
+					res.send('Error finding tournaments.');
+				} else {
+					res.send(docs);
+				}
+			});
 		}
 	});
 
@@ -246,7 +254,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/api/team', function(req, res) {
-		Team.find().populate('teammates paid').exec(function(err, docs) {
+		Team.find().populate('teammates').exec(function(err, docs) {
 			res.send(docs);
 		});
 	});
@@ -402,19 +410,81 @@ module.exports = function(app) {
 	});
 
 	app.put('/api/settings', function(req, res) {
+		var tourny = req.body.currentTournament;
+		if (tourny == '' || tourny == undefined) {
+			tourny = null;
+		}
 		Settings.findOne({}, function(err, settings) {
 			if (err) {
 				res.send('Error saving the settings');
 			} else if (settings) {
 				settings.currentWeek = req.body.currentWeek;
+				settings.currentTournament = tourny;
 				settings.save(function(err, updatedSettings) {
-					res.send(updatedSettings);
+					if (err) {
+						console.log(err);
+					} else {
+						res.send(updatedSettings);
+					}
 				});
 			} else {
 				var newSettings = new Settings();
 				newSettings.currentWeek = req.body.settings;
+				newSettings.currentTournament = tourny;
 				newSettings.save(function(err, savedSettings) {
 					res.send(savedSettings);
+				});
+			}
+		});
+	});
+
+	app.get('/api/calculate/stats', function(req, res) {
+		Settings.findOne({}, function(err, settings) {
+			if (err) {
+				res.send('Error getting the settings.');
+			} else {
+				Tournament.findOne({_id: settings.currentTournament}).populate({
+					path: 'matches',
+					populate: {
+						path: 'home away game1 game2 game3',
+						options: {
+							sort: {
+								"round": 1,
+								"time": -1
+							}
+						}
+					}
+				}).exec(function(err, tourny) {
+					if (err) {
+						res.send('Error finding tournament.');
+					} else {
+						// tally up the wins for every team
+						Team.update({tournament: settings.currentTournament}, { wins: 0}, {multi: true}, function(err, raw) {
+							tourny.matches.forEach(function(match) {
+								Team.findOne({_id: match.game1}, function(err, team) {
+									if (team) {
+										team.wins++;
+										team.save(function (err, team) {
+											Team.findOne({_id: match.game2}, function(err, team) {
+												if (team) {
+													team.wins++;
+													team.save(function(err, team) {
+														Team.findOne({_id: match.game3}, function(err, team) {
+															if (team) {
+																team.wins++;
+																team.save();
+															}
+														});
+													});
+												}
+											});
+										});
+									}
+								});
+							});
+							res.send('done.');
+						});
+					}
 				});
 			}
 		});
@@ -453,34 +523,59 @@ module.exports = function(app) {
 	});
 
 	app.get('/schedule', function(req, res) {
-		Tournament.findOne({name: 'Summer 2017'}).populate({
-			path: 'matches',
-			populate: {
-				path: 'home away game1 game2 game3',
-				options: {
-					sort: {
-						"round": 1,
-						"time": -1
+		Settings.findOne({}, function(err, settings) {
+			Tournament.findOne({_id: settings.currentTournament}).populate({
+				path: 'matches',
+				populate: {
+					path: 'home away game1 game2 game3',
+					options: {
+						sort: {
+							"round": 1,
+							"time": -1
+						}
 					}
 				}
-			}
-		}).exec(function(err, tourny) {
-			if (tourny) {
-				res.render('schedule', {
-					matches: tourny.matches
-				});
-			} else {
-				res.render('schedule', {
-					matches: []
-				});
-			}
+			}).exec(function(err, tourny) {
+				if (tourny) {
+					res.render('schedule', {
+						matches: tourny.matches
+					});
+				} else {
+					res.render('schedule', {
+						matches: []
+					});
+				}
+			});
 		});
 	});
 
 	app.get('/stats', function(req, res) {
 		Team.find({}).populate('teammates').exec(function(err, teams) { // all the teams for now
-			res.render('stats', {
-				teams: teams
+			Settings.findOne({}, function(err, settings) {
+				Tournament.findOne({_id: settings.currentTournament}).populate({
+					path: 'matches',
+					populate: {
+						path: 'home away game1 game2 game3',
+						options: {
+							sort: {
+								"round": 1,
+								"time": -1
+							}
+						}
+					}
+				}).exec(function(err, tourny) {
+					if (tourny) {
+						res.render('stats', {
+							teams: teams,
+							matches: tourny.matches
+						});
+					} else {
+						res.render('schedule', {
+							matches: [],
+							teams: teams
+						});
+					}
+				});
 			});
 		}); 
 	});

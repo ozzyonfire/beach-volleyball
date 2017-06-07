@@ -27,6 +27,7 @@ $(document).ready(function() {
 });
 
 function addOptions(selectId, match) {
+	$('#'+selectId).append($('<option></option>').prop('value', '').text('No Game'));
 	$('#'+selectId).append($('<option></option>')
 		.prop('value', match.home._id).text(match.home.name));
 	$('#'+selectId).append($('<option></option>')

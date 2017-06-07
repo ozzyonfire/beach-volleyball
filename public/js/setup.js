@@ -1,18 +1,23 @@
 $(document).ready(function() {
 
 	// Settings Tab
+	$.get('/api/tournament').done(function(tournaments) {
+		tournaments.forEach(function(tourny) {
+			$('#currentTournament').append($('<option></option>').prop('value', tourny._id).text(tourny.name));
+		});
+	});
+
 	$.get('/api/settings').done(function(settings) {
 		$('#currentWeek').val(settings.currentWeek);
-	});	
+		$('#currentTournament').val(settings.currentTournament);
+	});
+
+	$('#currentTournament').change(function(e) {
+		sendSettingsForm();
+	});
 
 	$('#currentWeek').change(function(e) {
-		$.ajax({
-			url: '/api/settings',
-			method: 'put',
-			data: $('#settingsForm').serialize()
-		}).done(function(settings) {
-			console.log(settings);
-		});
+		sendSettingsForm();
 	});
 
 	// Tournament Tab
@@ -173,17 +178,32 @@ $(document).ready(function() {
 });
 
 // Functions
-function addPlayerToList(player) {
-	var button = $('<button></button>').addClass('list-group-item');
-	button.prop('type', 'button').attr('data-toggle','modal');
-	button.attr('data-target','#playerModal').text(player.name);
-	button.prop('id', 'row-'+player._id);
+function sendSettingsForm() {
+	$.ajax({
+		url: '/api/settings',
+		method: 'put',
+		data: $('#settingsForm').serialize()
+	}).done(function(settings) {
+		console.log(settings);
+	});
+}
 
-	button.click(function(e) {
+function addPlayerToList(player) {
+	var row = $('<tr></tr>');
+	var nameCol = $('<td></td>').text(player.name);
+	var paidCol = $('<td></td>').text(player.paid);
+
+	row.attr('data-toggle','modal');
+	row.attr('data-target','#playerModal');
+	row.prop('id', 'row-'+player._id);
+	row.append(nameCol);
+	row.append(paidCol);
+
+	row.click(function(e) {
 		populatePlayerForm(player);
 	});
 
-	$('#playerGroup').append(button);
+	$('#playerGroup').append(row);
 }
 
 function populatePlayerForm(player) {

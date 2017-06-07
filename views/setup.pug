@@ -40,7 +40,7 @@ html
 						.form-group
 							label(for="currentTournament") Active Tournament
 							select.form-control#currentTournament(name="currentTournament")
-								option Coming Soon
+								option(value='') No Tournament
 
 				div(class="tab-pane fade in", id="createTournament")
 					form#tournamentForm
@@ -115,7 +115,12 @@ html
 								th Time
 						tbody#matchTableBody
 				.tab-pane.fade.in#createPlayers
-					.list-group#playerGroup
+					table.table.table-striped.table-hover
+						thead
+							tr
+								th Name
+								th Paid
+						tbody#playerGroup
 					button.btn.btn-default#addPlayerButton(type="button", data-toggle="modal", data-target="#playerModal") Add Player
 					+genericModal("playerModal", "New Player")
 						form#playerForm
