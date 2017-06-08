@@ -10,6 +10,13 @@ $(document).ready(function() {
 			});
 		});
 	});
+
+	$('#statsTable').DataTable({
+		pageLength: 10,
+		order: [[1, 'desc']],
+		searching: false,
+		paging: false
+	});
 });
 
 function showTeamInfo(team) {
