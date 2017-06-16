@@ -4,6 +4,7 @@ var Team = require('./model/team');
 var Member = require('./model/member');
 var Settings = require('./model/settings');
 var helpers = require('./helpers');
+var async = require('async');
 
 module.exports = function(app) {
 	
@@ -459,7 +460,46 @@ module.exports = function(app) {
 						res.send('Error finding tournament.');
 					} else {
 						// tally up the wins for every team
-						Team.update({tournament: settings.currentTournament}, { wins: 0}, {multi: true}, function(err, raw) {
+						Team.find({tournament: settings.currentTournament}, function(err, teams) {
+							if (err) {
+								res.send('Error getting the teams.');
+							}
+
+							teams.forEach(function(team) {
+								team.wins = 0;
+							});
+
+							tourny.matches.forEach(function(match) {
+								teams.forEach(function(team) {
+									if (match.game1) {
+										if (match.game1._id.equals(team._id)) {
+											team.wins++;
+										}
+									}
+									
+									if (match.game2) {
+										if (match.game2._id.equals(team._id)) {
+											team.wins++;
+										}
+									}
+
+									if (match.game3) {
+										if (match.game3._id.equals(team._id)) {		
+											team.wins++;
+										}
+									}
+								});
+							});
+
+							async.each(teams, function(team) {
+								team.save();
+							}, function(err) {
+								res.send('done.');
+							});
+						});
+
+						/*
+						Team.update({tournament: settings.currentTournament}, {wins: 0}, {multi: true}, function(err, raw) {
 							tourny.matches.forEach(function(match) {
 								Team.findOne({_id: match.game1}, function(err, team) {
 									if (team) {
@@ -484,6 +524,7 @@ module.exports = function(app) {
 							});
 							res.send('done.');
 						});
+						*/
 					}
 				});
 			}
