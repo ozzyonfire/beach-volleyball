@@ -1,23 +1,24 @@
 $(document).ready(function() {
 	$.get('/api/calculate/stats').done(function(response) {
 		console.log(response);
-	});
 
-	$.get('/api/team').done(function(teams) {
-		teams.forEach(function(team) {
-			$('#row-'+team._id).click(function(e) {
-				showTeamInfo(team);
+		$.get('/api/team').done(function(teams) {
+			teams.forEach(function(team) {
 				makeStatsTable(team);
+				$('#row-'+team._id).click(function(e) {
+					showTeamInfo(team);
+				});
+			});
+
+			$('#statsTable').DataTable({
+				pageLength: 10,
+				order: [[1, 'desc']],
+				searching: false,
+				paging: false
 			});
 		});
 	});
-
-	$('#statsTable').DataTable({
-		pageLength: 10,
-		order: [[1, 'desc']],
-		searching: false,
-		paging: false
-	});
+	
 });
 
 function showTeamInfo(team) {

@@ -491,40 +491,20 @@ module.exports = function(app) {
 								});
 							});
 
-							async.each(teams, function(team) {
-								team.save();
-							}, function(err) {
-								res.send('done.');
-							});
-						});
-
-						/*
-						Team.update({tournament: settings.currentTournament}, {wins: 0}, {multi: true}, function(err, raw) {
-							tourny.matches.forEach(function(match) {
-								Team.findOne({_id: match.game1}, function(err, team) {
-									if (team) {
-										team.wins++;
-										team.save(function (err, team) {
-											Team.findOne({_id: match.game2}, function(err, team) {
-												if (team) {
-													team.wins++;
-													team.save(function(err, team) {
-														Team.findOne({_id: match.game3}, function(err, team) {
-															if (team) {
-																team.wins++;
-																team.save();
-															}
-														});
-													});
-												}
-											});
-										});
-									}
+							var tasks = [];
+							teams.forEach(function(team) {
+								tasks.push(function(callback) {
+									team.save(function(err, newTeam) {
+										callback(err);
+									});
 								});
 							});
-							res.send('done.');
+
+							async.parallel(tasks, function(err) {
+								res.send('done.');
+							});
+
 						});
-						*/
 					}
 				});
 			}
