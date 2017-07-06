@@ -6,7 +6,8 @@ var settingsSchema = new mongoose.Schema({
 	currentTournament: {
 		type: ObjectId,
 		ref: 'Tournament'
-	}
+	},
+	welcomeMessage: String
 });
 
 module.exports = mongoose.model('Settings', settingsSchema);

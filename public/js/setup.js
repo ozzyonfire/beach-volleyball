@@ -10,6 +10,7 @@ $(document).ready(function() {
 	$.get('/api/settings').done(function(settings) {
 		$('#currentWeek').val(settings.currentWeek);
 		$('#currentTournament').val(settings.currentTournament);
+		$('#welcomeMessageBlock').val(settings.welcomeMessage);
 	});
 
 	$('#currentTournament').change(function(e) {
@@ -17,6 +18,10 @@ $(document).ready(function() {
 	});
 
 	$('#currentWeek').change(function(e) {
+		sendSettingsForm();
+	});
+
+	$('#saveSettings').click(function(e) {
 		sendSettingsForm();
 	});
 

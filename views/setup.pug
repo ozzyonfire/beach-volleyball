@@ -41,6 +41,10 @@ html
 							label(for="currentTournament") Active Tournament
 							select.form-control#currentTournament(name="currentTournament")
 								option(value='') No Tournament
+						.form-group
+							label(for="welcomeMessage") Welcome Message
+							textarea.form-control#welcomeMessageBlock(rows="3", name="welcomeMessage")
+					button.btn.btn-default#saveSettings(type="button") Save Settings
 
 				div(class="tab-pane fade in", id="createTournament")
 					form#tournamentForm

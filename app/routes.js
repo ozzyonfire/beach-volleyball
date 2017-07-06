@@ -421,6 +421,7 @@ module.exports = function(app) {
 			} else if (settings) {
 				settings.currentWeek = req.body.currentWeek;
 				settings.currentTournament = tourny;
+				settings.welcomeMessage = req.body.welcomeMessage;
 				settings.save(function(err, updatedSettings) {
 					if (err) {
 						console.log(err);
@@ -432,6 +433,7 @@ module.exports = function(app) {
 				var newSettings = new Settings();
 				newSettings.currentWeek = req.body.settings;
 				newSettings.currentTournament = tourny;
+				newSettings.welcomeMessage = req.body.welcomeMessage;
 				newSettings.save(function(err, savedSettings) {
 					res.send(savedSettings);
 				});
@@ -540,7 +542,11 @@ module.exports = function(app) {
 	});
 
 	app.get('/', function(req, res) {
-		res.render('index');
+		Settings.findOne({}, function(err, settings) {
+			res.render('index', {
+				welcomeMessage: settings.welcomeMessage
+			});
+		});
 	});
 
 	app.get('/schedule', function(req, res) {
