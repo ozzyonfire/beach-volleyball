@@ -1,12 +1,12 @@
 $(document).ready(function() {
-	$('#weekSelect').change(function(e) {
-		updateMatchTable();
-	});
+	// $('#weekSelect').change(function(e) {
+	// 	updateMatchTable();
+	// });
 
-	$.get('/api/settings').done(function(settings) {
-		$('#weekSelect').val(settings.currentWeek);
-		updateMatchTable();
-	});
+	// $.get('/api/settings').done(function(settings) {
+	// 	$('#weekSelect').val(settings.currentWeek);
+	// 	updateMatchTable();
+	// });
 });
 
 function makeMatchTable(matches) {

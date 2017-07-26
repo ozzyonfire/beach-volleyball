@@ -5,8 +5,35 @@ var Member = require('./model/member');
 var Settings = require('./model/settings');
 var helpers = require('./helpers');
 var async = require('async');
+var request = require('request');
 
 module.exports = function(app) {
+
+	app.get('/api/challonge/matches', function(req, res) {
+		var options = {
+			url: 'https://api.challonge.com/v1/tournaments/beachleague17/matches.json',
+			qs: {
+				api_key: '2gjxepsybgp5xb2bm2jaxyhjnsf6oxrnaf6zfdiu'
+			}
+		};
+
+		request(options, function(err, response, body) {
+			res.send(body);
+		});
+	});
+
+	app.get('/api/challonge/teams', function(req, res) {
+		var options = {
+			url: 'https://api.challonge.com/v1/tournaments/beachleague17/participants.json',
+			qs: {
+				api_key: '2gjxepsybgp5xb2bm2jaxyhjnsf6oxrnaf6zfdiu'
+			}
+		};
+
+		request(options, function(err, response, body) {
+			res.send(body);
+		});
+	});
 	
 	app.post('/api/tournament', function (req, res) {
 		if (!req.body) {

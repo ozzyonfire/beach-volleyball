@@ -7,6 +7,7 @@ var memberSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: 'Team'
 	},
+	challongeTeam: String,
 	email: String,
 	paid: Boolean
 });

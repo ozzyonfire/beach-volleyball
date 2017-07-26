@@ -7,6 +7,7 @@ var settingsSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: 'Tournament'
 	},
+	challoneTournament: String
 	welcomeMessage: String
 });
 
